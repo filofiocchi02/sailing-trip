@@ -1,5 +1,5 @@
 import { getApps, initializeApp } from "firebase/app";
-import { getAuth, type User } from "firebase/auth";
+import { getAuth, signOut, type User } from "firebase/auth";
 import { doc, getFirestore, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -18,10 +18,22 @@ const firebaseConfig = {
 // changing the application code.
 export const firebaseConfigured = Object.values(firebaseConfig).every(Boolean) && firebaseConfig.apiKey !== "xx";
 export const firebaseAdminEmail = env.VITE_FIREBASE_ADMIN_EMAIL;
-export const firebaseApp = firebaseConfigured ? (getApps()[0] ?? initializeApp(firebaseConfig)) : null;
+const firebaseAppName = "youth-sailing";
+export const firebaseApp = firebaseConfigured
+  ? (getApps().find((app) => app.name === firebaseAppName) ?? initializeApp(firebaseConfig, firebaseAppName))
+  : null;
+export const firebaseAuthTenantId = env.VITE_FIREBASE_AUTH_TENANT_ID?.trim() || null;
 export const firebaseAuth = firebaseApp ? getAuth(firebaseApp) : null;
-if (firebaseAuth) firebaseAuth.tenantId = env.VITE_FIREBASE_AUTH_TENANT_ID ?? null;
+if (firebaseAuth) firebaseAuth.tenantId = firebaseAuthTenantId;
 export const firebaseDb = firebaseApp ? getFirestore(firebaseApp) : null;
+
+export async function prepareTenantAuth() {
+  if (!firebaseAuth || !firebaseAuthTenantId) return;
+  await firebaseAuth.authStateReady();
+  if (firebaseAuth.currentUser && firebaseAuth.currentUser.tenantId !== firebaseAuthTenantId) {
+    await signOut(firebaseAuth);
+  }
+}
 
 export type WaitlistProfile = {
   name: string;

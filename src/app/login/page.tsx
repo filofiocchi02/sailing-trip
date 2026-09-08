@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { firebaseAdminEmail, firebaseAuth, firebaseConfigured, getWaitlistProfile } from "../lib/firebase";
+import { firebaseAdminEmail, firebaseAuth, firebaseConfigured, getWaitlistProfile, prepareTenantAuth } from "../lib/firebase";
 import PasswordField from "../password-field";
 
 const accounts = {
@@ -18,6 +18,7 @@ export default function LoginPage() {
     event.preventDefault(); setError(""); setLoading(true);
     try {
       if (firebaseConfigured && firebaseAuth) {
+        await prepareTenantAuth();
         const credential = await signInWithEmailAndPassword(firebaseAuth, username, password);
         if (firebaseAdminEmail && credential.user.email?.toLowerCase() === firebaseAdminEmail.toLowerCase()) {
           localStorage.setItem("sail-week-session", JSON.stringify({ username, type: "admin" })); router.push("/admin"); return;

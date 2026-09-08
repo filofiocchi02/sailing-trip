@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { firebaseAuth, firebaseConfigured, saveWaitlistProfile } from "../lib/firebase";
+import { firebaseAuth, firebaseConfigured, prepareTenantAuth, saveWaitlistProfile } from "../lib/firebase";
 import PasswordField from "../password-field";
 
 const roles = ["I've never been sailing", "I know I have been sailing and I can help", "I am a qualified skipper, but I do not feel comfortable skippering by myself", "I am a qualified skipper, and I feel comfortable skippering a boat"];
@@ -15,6 +15,7 @@ export default function ApplyPage() {
     setSaving(true);
     try {
       if (firebaseConfigured && firebaseAuth) {
+        await prepareTenantAuth();
         const credential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
         await updateProfile(credential.user, { displayName: name });
         await saveWaitlistProfile(credential.user, { name, email, phone, role, note });
