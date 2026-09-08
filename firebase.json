@@ -1,0 +1,15 @@
+{
+  "hosting": {
+    "site": "youth-sailing",
+    "public": "dist/client",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "cleanUrls": true,
+    "rewrites": [
+      { "source": "/admin", "destination": "/admin.html" },
+      { "source": "/apply", "destination": "/apply.html" },
+      { "source": "/dashboard", "destination": "/dashboard.html" },
+      { "source": "/login", "destination": "/login.html" },
+      { "source": "/waitlist", "destination": "/waitlist.html" }
+    ]
+  }
+}
