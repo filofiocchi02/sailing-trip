@@ -18,7 +18,20 @@ These rules apply to all development work in this repository.
 - Open a pull request from the feature branch into `main`.
 - The pull request is the only route for merging changes into `main`. It should
   be reviewed and merged through the repository hosting service.
+- Do not merge pull requests automatically for now. Leave the pull request open
+  for the repository owner to review and merge.
 - Delete the feature branch after the pull request has been merged.
+
+## GitHub issues
+
+- Track development work as GitHub Issues.
+- Always read the relevant existing issues before starting a task, including
+  their descriptions, comments, and current status.
+- When a new task is requested and no issue exists for it, create a GitHub Issue
+  before implementing the task.
+- Link the pull request to the issue it implements.
+- Close the issue when the implementation is complete and verified, even when
+  the related pull request remains open for owner review.
 
 ## Before opening a pull request
 
