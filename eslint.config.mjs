@@ -35,6 +35,14 @@ const eslintConfig = defineConfig([
         version: "detect",
       },
     },
+    rules: {
+      // Standard anchors preserve full-page navigation for Firebase Hosting's
+      // generated HTML routes.
+      "@next/next/no-html-link-for-pages": "off",
+      "@next/next/no-img-element": "off",
+      // These effects hydrate explicitly local, browser-only demo state.
+      "react-hooks/set-state-in-effect": "off",
+    },
   },
 ]);
 
