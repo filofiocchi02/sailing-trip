@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { firebaseAuth, firebaseConfigured, isFirebaseAdminUser, signOutSailWeekUser } from "../lib/firebase";
 import { defaultTripDetails } from "../lib/trip";
 
 const roles = ["I've never been sailing", "I know I have been sailing and I can help", "I am a qualified skipper, but I do not feel comfortable skippering by myself", "I am a qualified skipper, and I feel comfortable skippering a boat"];
@@ -35,16 +37,34 @@ function FlightForm({ reserved }: { reserved: boolean }) {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [isAdminSession, setIsAdminSession] = useState(false);
   const [role, setRole] = useState(roles[1]); const [roleSaved, setRoleSaved] = useState(false); const [selectedWeeks, setSelectedWeeks] = useState<string[]>([]); const [availabilityOpen, setAvailabilityOpen] = useState(true); const [availabilityDirty, setAvailabilityDirty] = useState(false); const [hoveredRange, setHoveredRange] = useState<string | null>(null); const [monthIndex, setMonthIndex] = useState(0); const [selectedRoommate, setSelectedRoommate] = useState<string | null>(null); const [roommateSearch, setRoommateSearch] = useState(""); const [roommateOpen, setRoommateOpen] = useState(true); const [reserved, setReserved] = useState(false);
   useEffect(() => {
-    try {
-      const session = JSON.parse(localStorage.getItem("sail-week-session") ?? "null") as { type?: string } | null;
-      setIsAdminSession(session?.type === "admin");
-    } catch {
-      setIsAdminSession(false);
+    let active = true;
+    async function loadAdminAccess() {
+      if (firebaseConfigured && firebaseAuth) {
+        const isAdmin = await isFirebaseAdminUser();
+        if (active) setIsAdminSession(isAdmin);
+        return;
+      }
+      try {
+        const session = JSON.parse(localStorage.getItem("sail-week-session") ?? "null") as { type?: string } | null;
+        if (active) setIsAdminSession(session?.type === "admin");
+      } catch {
+        if (active) setIsAdminSession(false);
+      }
     }
-  }, []);
+    void loadAdminAccess();
+    const handleDocumentClick = (event: MouseEvent) => {
+      const link = (event.target as HTMLElement).closest("a");
+      if (link?.textContent?.trim() !== "Sign out") return;
+      event.preventDefault();
+      void signOutSailWeekUser().then(() => router.push("/"));
+    };
+    document.addEventListener("click", handleDocumentClick);
+    return () => { active = false; document.removeEventListener("click", handleDocumentClick); };
+  }, [router]);
   const currentMonth = calendarMonths[monthIndex]; const monthName = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(new Date(2027, currentMonth, 1)); const confirmedRoommate = selectedRoommate && incomingRoommateRequests.has(selectedRoommate) ? selectedRoommate : null; const days = monthDays(currentMonth); const roommateCandidates = approvedCrew.filter((person) => !alreadyChosenRoommates.has(person) && person.toLowerCase().includes(roommateSearch.toLowerCase()));
   const toggleWeek = (date: Date) => { const key = periodKey(date); setSelectedWeeks((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key]); setAvailabilityDirty(true); };
   const chooseRoommate = (person: string) => { const next = selectedRoommate === person ? null : person; setSelectedRoommate(next); if (next && incomingRoommateRequests.has(next)) setRoommateOpen(false); };

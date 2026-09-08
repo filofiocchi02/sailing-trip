@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { defaultTripDetails, tripDetailsSchema, tripLogisticsSchema, tripStorageKey, totalTripSlots, type TripDetails } from "../lib/trip";
+import { firebaseAuth, firebaseConfigured, isFirebaseAdminUser, signOutSailWeekUser } from "../lib/firebase";
 
 const roles = ["Never sailed", "Can help", "Qualified skipper", "Comfortable skipper"];
 const people = [
@@ -11,6 +13,9 @@ const people = [
 type SchemaField = { key: keyof TripDetails; label: string; type: string };
 
 export default function AdminPage() {
+  const router = useRouter();
+  const [accessChecked, setAccessChecked] = useState(false);
+  const [hasAdminAccess, setHasAdminAccess] = useState(false);
   const [trip, setTrip] = useState<TripDetails>(defaultTripDetails);
   const [accepted, setAccepted] = useState<string[]>(["Maya Green", "Jon Bell", "Alex Morgan", "Luca Rossi", "Theo Clarke", "Nina Patel", "Elena Costa", "Arthur Jones", "Leo Evans", "Grace Lee"]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,6 +26,43 @@ export default function AdminPage() {
   const acceptedPeople = people.filter((person) => accepted.includes(person.name));
   const roleCounts = roles.map((role) => ({ role, count: acceptedPeople.filter((person) => person.role === role).length }));
   const maxRoleCount = Math.max(...roleCounts.map((item) => item.count), 1);
+
+  useEffect(() => {
+    let active = true;
+    async function checkAccess() {
+      if (firebaseConfigured && firebaseAuth) {
+        const isAdmin = await isFirebaseAdminUser();
+        if (active) {
+          setHasAdminAccess(isAdmin);
+          setAccessChecked(true);
+          if (!isAdmin) router.replace("/login");
+        }
+        return;
+      }
+      try {
+        const session = JSON.parse(localStorage.getItem("sail-week-session") ?? "null") as { type?: string } | null;
+        const isAdmin = session?.type === "admin";
+        if (active) {
+          setHasAdminAccess(isAdmin);
+          setAccessChecked(true);
+          if (!isAdmin) router.replace("/login");
+        }
+      } catch {
+        if (active) { setAccessChecked(true); router.replace("/login"); }
+      }
+    }
+    void checkAccess();
+    const handleDocumentClick = (event: MouseEvent) => {
+      const link = (event.target as HTMLElement).closest("a");
+      if (link?.textContent?.trim() !== "Sign out") return;
+      event.preventDefault();
+      void signOutSailWeekUser().then(() => router.push("/"));
+    };
+    document.addEventListener("click", handleDocumentClick);
+    return () => { active = false; document.removeEventListener("click", handleDocumentClick); };
+  }, [router]);
+
+  if (!accessChecked || !hasAdminAccess) return null;
 
   function updateField(key: keyof TripDetails, value: string) {
     const numericFields = ["boatCount", "capacityPerBoat", "estimatedCost", "depositCost"];
