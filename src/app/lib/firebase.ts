@@ -35,6 +35,18 @@ export async function prepareTenantAuth() {
   }
 }
 
+export async function isFirebaseAdminUser() {
+  if (!firebaseAuth || !firebaseAdminEmail) return false;
+  await prepareTenantAuth();
+  const user = firebaseAuth.currentUser;
+  return user?.email?.toLowerCase() === firebaseAdminEmail.toLowerCase();
+}
+
+export async function signOutSailWeekUser() {
+  if (firebaseAuth) await signOut(firebaseAuth);
+  localStorage.removeItem("sail-week-session");
+}
+
 export type WaitlistProfile = {
   name: string;
   email: string;
