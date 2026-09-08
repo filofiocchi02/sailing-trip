@@ -11,5 +11,8 @@
       { "source": "/login", "destination": "/login.html" },
       { "source": "/waitlist", "destination": "/waitlist.html" }
     ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }
