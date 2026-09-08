@@ -13,7 +13,7 @@ const firebaseConfig = {
   appId: env.VITE_FIREBASE_APP_ID,
 };
 
-// Keep the local/demo fallback active when the checked-in example config uses
+// Firebase configuration is supplied at build time. Keep the local/demo fallback active when the checked-in example config uses
 // the placeholder key. A real Firebase key can be supplied later without
 // changing the application code.
 export const firebaseConfigured = Object.values(firebaseConfig).every(Boolean) && firebaseConfig.apiKey !== "xx";
