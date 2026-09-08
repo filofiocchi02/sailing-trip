@@ -13,7 +13,10 @@ const firebaseConfig = {
   appId: env.VITE_FIREBASE_APP_ID,
 };
 
-export const firebaseConfigured = Object.values(firebaseConfig).every(Boolean);
+// Keep the local/demo fallback active when the checked-in example config uses
+// the placeholder key. A real Firebase key can be supplied later without
+// changing the application code.
+export const firebaseConfigured = Object.values(firebaseConfig).every(Boolean) && firebaseConfig.apiKey !== "xx";
 export const firebaseAdminEmail = env.VITE_FIREBASE_ADMIN_EMAIL;
 export const firebaseApp = firebaseConfigured ? (getApps()[0] ?? initializeApp(firebaseConfig)) : null;
 export const firebaseAuth = firebaseApp ? getAuth(firebaseApp) : null;
