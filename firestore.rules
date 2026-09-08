@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /waitlistApplications/{userId} {
+      function isYouthSailingUser() {
+        return request.auth != null
+          && request.auth.token.firebase.tenant == "sailing-trip-lk5r5"
+          && request.auth.uid == userId;
+      }
+
+      allow create: if isYouthSailingUser()
+        && request.resource.data.status == "waitlisted";
+
+      allow get: if isYouthSailingUser();
+
+      allow update, delete: if false;
+    }
+  }
+}

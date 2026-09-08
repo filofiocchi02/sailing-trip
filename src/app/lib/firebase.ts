@@ -20,6 +20,7 @@ export const firebaseConfigured = Object.values(firebaseConfig).every(Boolean) &
 export const firebaseAdminEmail = env.VITE_FIREBASE_ADMIN_EMAIL;
 export const firebaseApp = firebaseConfigured ? (getApps()[0] ?? initializeApp(firebaseConfig)) : null;
 export const firebaseAuth = firebaseApp ? getAuth(firebaseApp) : null;
+if (firebaseAuth) firebaseAuth.tenantId = env.VITE_FIREBASE_AUTH_TENANT_ID ?? null;
 export const firebaseDb = firebaseApp ? getFirestore(firebaseApp) : null;
 
 export type WaitlistProfile = {
