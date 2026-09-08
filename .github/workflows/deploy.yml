@@ -66,18 +66,10 @@ jobs:
           name: frontend-build
           path: dist/client
 
-      - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_APOLLO_DUCK }}
-          projectId: apollo-duck
-          channelId: live
-
       - name: Authenticate Firebase CLI
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_APOLLO_DUCK }}
 
-      - name: Deploy Firestore rules
-        run: npx --yes firebase-tools@latest deploy --only firestore:rules --project apollo-duck --non-interactive
+      - name: Deploy Firebase Hosting and Firestore rules
+        run: npx --yes firebase-tools@latest deploy --only hosting:youth-sailing,firestore:rules --project apollo-duck --non-interactive
