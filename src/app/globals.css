@@ -95,6 +95,12 @@ h2 { max-width: 540px; margin-bottom: 0; font-family: Georgia, "Times New Roman"
 .form-stack label, .setting-label { display: grid; gap: 8px; color: var(--muted); font-size: 12px; font-weight: 700; }
 input, select { font: inherit; }
 .form-stack input, .text-control, .number-control, .select-control { width: 100%; padding: 13px 14px; border: 1px solid var(--line); border-radius: 2px; background: rgba(255,255,255,.55); color: var(--ink); }.text-control { resize: vertical; font: inherit; line-height: 1.45; }
+.password-input-wrap { position: relative; display: block; }
+.password-input-wrap input { padding-right: 50px; }
+.password-toggle { position: absolute; top: 50%; right: 9px; display: grid; width: 32px; height: 32px; place-items: center; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; transform: translateY(-50%); }
+.password-toggle:hover { background: rgba(15, 92, 98, .08); color: var(--teal); }
+.password-toggle:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+.password-toggle svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
 .form-error { margin: 0; color: #b84f3d; font-size: 12px; }
 .mock-credentials { display: grid; gap: 11px; margin-top: 31px; padding-top: 23px; border-top: 1px solid var(--line); }
 .mock-credentials div { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; color: var(--muted); font-size: 11px; }
